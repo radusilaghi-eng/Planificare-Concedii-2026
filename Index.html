@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Calendar Concedii Echipa 2026</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh;}
+.container{max-width:1100px;margin:0 auto;padding:2rem 1.5rem;}
+h1{font-size:22px;font-weight:600;margin-bottom:1.5rem;color:#111;}
+.tabs{display:flex;gap:4px;border-bottom:1px solid #ddd;margin-bottom:1.5rem;}
+.tab{font-size:13px;padding:7px 16px;cursor:pointer;border-radius:6px 6px 0 0;color:#666;background:transparent;border:none;font-family:inherit;}
+.tab.active{color:#111;font-weight:600;background:#fff;border:1px solid #ddd;border-bottom:1px solid #fff;margin-bottom:-1px;}
+.panel{display:none;}.panel.active{display:block;}
+.employees{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:1rem;}
+.emp-card{flex:1 1 200px;background:#fff;border:2px solid #ddd;border-radius:12px;padding:.85rem 1rem;cursor:pointer;}
+.emp-name{font-size:14px;font-weight:600;color:#111;border:none;background:transparent;width:100%;outline:none;padding:0;font-family:inherit;}
+.emp-badge{width:10px;height:10px;border-radius:50%;margin-right:7px;flex-shrink:0;display:inline-block;}
+.emp-header{display:flex;align-items:center;margin-bottom:8px;}
+.emp-carry{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.emp-carry label{font-size:11px;color:#888;}
+.carry-input{width:48px;font-size:12px;padding:3px 7px;border:1px solid #ccc;border-radius:6px;font-family:inherit;}
+.emp-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:7px;}
+.emp-stat{font-size:11px;color:#888;}
+.emp-stat span{font-weight:600;color:#111;}
+.hint{font-size:12px;color:#888;margin-bottom:1rem;}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem;align-items:center;}
+.btn-sm{font-size:12px;color:#555;background:#fff;border:1px solid #ccc;border-radius:7px;padding:5px 12px;cursor:pointer;font-family:inherit;}
+.btn-sm:hover{background:#f5f5f3;}
+.btn-ol{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#fff;background:#0078D4;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-family:inherit;}
+.btn-ol:hover{background:#106EBE;}
+.err{font-size:12px;color:#993C1D;background:#FAECE7;border-radius:8px;padding:8px 12px;margin-bottom:1rem;display:none;}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem;}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:#666;}
+.leg-dot{width:14px;height:14px;border-radius:3px;flex-shrink:0;}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1.25rem;}
+.mc{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem;}
+.mn{font-size:14px;font-weight:600;color:#111;margin-bottom:10px;}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.dh{font-size:10px;color:#aaa;text-align:center;padding:2px 0;font-weight:600;}
+.day{font-size:11px;text-align:center;border-radius:5px;cursor:default;min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:5px;border:1px solid transparent;}
+.dn{font-size:12px;line-height:1.2;}
+.dots{display:flex;gap:2px;margin-top:3px;flex-wrap:wrap;justify-content:center;}
+.dot{width:6px;height:6px;border-radius:50%;}
+.day.empty{background:transparent;}
+.day.we{background:#f5f5f3;color:#bbb;}
+.day.hl{background:#FAECE7;color:#993C1D;font-weight:600;}
+.day.wd{background:#fff;color:#111;cursor:pointer;}
+.day.wd:hover{background:#EBF4FF;border-color:#90CAF9;}
+.mhl{margin-top:8px;border-top:1px solid #eee;padding-top:6px;}
+.htag{display:inline-block;font-size:10px;background:#FAECE7;color:#993C1D;border-radius:4px;padding:1px 6px;margin:1px 2px;}
+.mbg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;}
+.modal{background:#fff;border-radius:14px;padding:1.75rem;width:100%;max-width:500px;box-shadow:0 8px 40px rgba(0,0,0,.18);}
+.mt{font-size:16px;font-weight:600;color:#111;margin-bottom:1.25rem;}
+.mf{margin-bottom:.85rem;}
+.mf label{font-size:12px;color:#888;display:block;margin-bottom:4px;font-weight:500;}
+.mf input,.mf textarea{width:100%;font-size:13px;padding:8px 11px;border:1px solid #ddd;border-radius:8px;font-family:inherit;color:#111;background:#fff;resize:vertical;}
+.mf textarea{min-height:100px;line-height:1.6;}
+.mf input[readonly]{background:#f5f5f3;color:#666;}
+.mgrbox{font-size:13px;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;background:#f5f5f3;color:#444;display:flex;align-items:center;gap:8px;}
+.mgrbox strong{color:#111;}
+.ma{display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end;}
+.bsend{font-size:13px;font-weight:600;color:#fff;background:#0078D4;border:none;border-radius:8px;padding:8px 20px;cursor:pointer;font-family:inherit;}
+.bsend:hover{background:#106EBE;}
+.bcancel{font-size:13px;color:#555;background:#fff;border:1px solid #ccc;border-radius:8px;padding:8px 16px;cursor:pointer;font-family:inherit;}
+.bcancel:hover{background:#f5f5f3;}
+.ovs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1.5rem;}
+.ost{background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:.75rem 1rem;flex:1 1 130px;}
+.osl{font-size:11px;color:#888;margin-bottom:4px;}
+.osv{font-size:22px;font-weight:600;}
+.tlm{margin-bottom:1.25rem;}
+.tlmn{font-size:12px;font-weight:600;color:#888;margin-bottom:6px;}
+.tlrs{display:flex;flex-direction:column;gap:5px;}
+.tlr{display:flex;align-items:center;gap:8px;}
+.tll{font-size:11px;color:#888;width:80px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tld{display:flex;gap:2px;flex:1;}
+.tlc{flex:1;height:20px;border-radius:2px;min-width:0;background:#f0f0ee;}
+.tlc-num{flex:1;min-width:0;height:16px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#bbb;font-weight:500;}
+.tlc-num.we-num{color:#e0e0e0;}
+.tlc-num.hl-num{color:#F0997B;}
+.ob{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 10px;border-radius:12px;margin:2px;}
+.ob2{background:#FAEEDA;color:#854F0B;}
+.ob3{background:#FAECE7;color:#993C1D;}
+.ovtitle{font-size:14px;font-weight:600;color:#111;margin-bottom:.75rem;margin-top:.25rem;}
+.noolap{font-size:13px;color:#888;padding:.5rem 0 1rem;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>&#128197; Calendar Concedii Echipa 2026 &mdash; Romania</h1>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('edit')">Editare concedii</div>
+    <div class="tab" onclick="switchTab('overview')">Overview echipa</div>
+  </div>
+  <div class="panel active" id="panel-edit">
+    <div class="employees" id="emp-list"></div>
+    <div class="hint">Selecteaza un angajat, apoi apasa pe zilele lucratoare pentru a marca concediul.</div>
+    <div class="actions">
+      <button class="btn-sm" onclick="clearActive()">Sterge concediile angajatului activ</button>
+      <button class="btn-sm" onclick="clearAll()">Sterge toate concediile</button>
+      <button class="btn-ol" onclick="openModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="13" height="16" rx="2" fill="#fff" fill-opacity=".85"/><rect x="9" y="8" width="13" height="12" rx="2" fill="#28A8E0"/><path d="M9 10h13M9 14h13M9 18h8" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><circle cx="6" cy="12" r="2.5" fill="#0078D4"/></svg>
+        Trimite cerere concediu
+      </button>
+    </div>
+    <div class="err" id="err">Angajatul activ nu are zile marcate. Selecteaza mai intai zilele dorite.</div>
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#FAECE7;border:1px solid #F0997B"></div>Sarbatoare legala</div>
+      <div class="leg"><div class="leg-dot" style="background:#f5f5f3;border:1px solid #ddd"></div>Weekend</div>
+      <div class="leg" id="leg-emps" style="display:flex;gap:12px;flex-wrap:wrap;"></div>
+    </div>
+    <div class="months" id="months-container"></div>
+  </div>
+  <div class="panel" id="panel-overview">
+    <div class="ovs" id="ov-summary"></div>
+    <div class="ovtitle">Timeline lunar</div>
+    <div id="ov-legend" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:1rem;"></div>
+    <div id="timeline" style="margin-bottom:1.5rem;"></div>
+    <div class="ovtitle">Zile cu suprapuneri</div>
+    <div id="overlap-list"></div>
+  </div>
+</div>
+<div class="mbg" id="modal" style="display:none;">
+  <div class="modal">
+    <div class="mt">Cerere concediu &mdash; deschide in Outlook</div>
+    <div class="mf"><label>Angajat</label><input type="text" id="m-name" readonly/></div>
+    <div class="mf">
+      <label>Catre manager</label>
+      <div class="mgrbox">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#0078D4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#0078D4" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <strong>radu.silaghi@civitasgroup.ro</strong>
+      </div>
+    </div>
+    <div class="mf"><label>Zile selectate</label><input type="text" id="m-days" readonly/></div>
+    <div class="mf"><label>Mesaj optional</label><textarea id="m-msg" placeholder="Va rog sa aprobati cererea de concediu."></textarea></div>
+    <div class="ma">
+      <button class="bcancel" onclick="closeModal()">Anuleaza</button>
+      <button class="bsend" onclick="sendMail()">Deschide in Outlook</button>
+    </div>
+  </div>
+</div>
+<script>
+var MGR = 'radu.silaghi@civitasgroup.ro';
+var HL = {'2026-01-01':'Anul Nou','2026-01-02':'Anul Nou','2026-01-06':'Boboteaza','2026-01-07':'Sfantul Ion','2026-04-10':'Vinerea Mare','2026-04-12':'Paste ortodox','2026-04-13':'Paste ortodox','2026-05-01':'Ziua Muncii','2026-06-01':'Ziua Copilului','2026-06-08':'Rusalii','2026-06-09':'Rusalii','2026-08-15':'Adormirea Maicii Domnului','2026-11-30':'Sf. Andrei','2026-12-01':'Ziua Nationala','2026-12-25':'Craciun','2026-12-26':'Craciun'};
+var MN = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+var DN = ['Lu','Ma','Mi','Jo','Vi','Sa','Du'];
+var ANN = [21, 26, 25];
+var EC = ['#185FA5','#3B6D11','#993C1D'];
+var EL = ['#E6F1FB','#EAF3DE','#FAECE7'];
+var ED = ['#0C447C','#27500A','#712B13'];
+
+var emps = [
+  {name:'Radu Bogdan Silaghi', carry:0, vac:{}},
+  {name:'Marius Surlin', carry:0, vac:{}},
+  {name:'Teodor Dragan', carry:0, vac:{}}
+];
+var act = 0;
+
+function dk(y,m,d){return y+'-'+(m+1<10?'0':'')+(m+1)+'-'+(d<10?'0':'')+d;}
+function isWE(y,m,d){var w=new Date(y,m,d).getDay();return w===0||w===6;}
+function isHL(k){return HL.hasOwnProperty(k);}
+function isWD(y,m,d){return !isWE(y,m,d)&&!isHL(dk(y,m,d));}
+function fmtRO(k){var p=k.split('-');return p[2]+'.'+p[1]+'.'+p[0];}
+function vcnt(i){return Object.keys(emps[i].vac).length;}
+
+function grpDays(keys){
+  if(!keys.length) return [];
+  var g=[],s=keys[0],p=keys[0];
+  for(var i=1;i<keys.length;i++){
+    var diff=(new Date(keys[i])-new Date(p))/86400000;
+    if(diff<=3){p=keys[i];}else{g.push([s,p]);s=keys[i];p=keys[i];}
+  }
+  g.push([s,p]);return g;
+}
+
+function switchTab(t){
+  var tabs=document.querySelectorAll('.tab');
+  var panels=document.querySelectorAll('.panel');
+  tabs[0].classList.toggle('active',t==='edit');
+  tabs[1].classList.toggle('active',t==='overview');
+  panels[0].classList.toggle('active',t==='edit');
+  panels[1].classList.toggle('active',t==='overview');
+  if(t==='overview') renderOV();
+}
+
+function toggle(key){
+  if(emps[act].vac[key]) delete emps[act].vac[key]; else emps[act].vac[key]=1;
+  render();
+}
+function clearActive(){emps[act].vac={};render();}
+function clearAll(){for(var i=0;i<3;i++) emps[i].vac={};render();}
+function setAct(i){act=i;renderCards();renderMonths();}
+
+function openModal(){
+  var e=emps[act];
+  var keys=Object.keys(e.vac).sort();
+  if(!keys.length){document.getElementById('err').style.display='block';return;}
+  document.getElementById('err').style.display='none';
+  var grps=grpDays(keys);
+  var ds=grps.map(function(g){return g[0]===g[1]?fmtRO(g[0]):fmtRO(g[0])+' - '+fmtRO(g[1]);}).join(', ');
+  document.getElementById('m-name').value=e.name;
+  document.getElementById('m-days').value=ds+' ('+keys.length+' zile)';
+  document.getElementById('m-msg').value='';
+  document.getElementById('modal').style.display='flex';
+}
+function closeModal(){document.getElementById('modal').style.display='none';}
+function sendMail(){
+  var e=emps[act];
+  var keys=Object.keys(e.vac).sort();
+  var grps=grpDays(keys);
+  var ds=grps.map(function(g){return g[0]===g[1]?fmtRO(g[0]):fmtRO(g[0])+' - '+fmtRO(g[1]);}).join(', ');
+  var extra=document.getElementById('m-msg').value.trim();
+  var subj=encodeURIComponent('Cerere concediu - '+e.name);
+  var txt='Stimate Radu,\n\nPrin prezenta va solicit aprobarea concediului de odihna:\n\nNume: '+e.name+'\nZile solicitate: '+ds+'\nTotal zile: '+keys.length+(extra?'\n\nMesaj:\n'+extra:'')+'\n\nVa multumesc.\n\nCu stima,\n'+e.name;
+  window.open('mailto:'+MGR+'?subject='+subj+'&body='+encodeURIComponent(txt),'_blank');
+  closeModal();
+}
+
+function renderCards(){
+  var c=document.getElementById('emp-list');c.innerHTML='';
+  for(var i=0;i<3;i++){
+    (function(idx){
+      var e=emps[idx];
+      var total=ANN[idx]+e.carry, used=vcnt(idx), left=total-used;
+      var card=document.createElement('div');card.className='emp-card';
+      card.style.borderColor=idx===act?EC[idx]:'#ddd';
+      card.style.background=idx===act?EL[idx]+'55':'#fff';
+      card.onclick=function(ev){if(ev.target.tagName!=='INPUT')setAct(idx);};
+
+      var hdr=document.createElement('div');hdr.className='emp-header';
+      var bdg=document.createElement('div');bdg.className='emp-badge';bdg.style.background=EC[idx];
+      var inp=document.createElement('input');inp.className='emp-name';inp.value=e.name;
+      inp.onclick=function(ev){ev.stopPropagation();};
+      inp.oninput=function(){emps[idx].name=this.value;renderCards();};
+      hdr.appendChild(bdg);hdr.appendChild(inp);card.appendChild(hdr);
+
+      var cr=document.createElement('div');cr.className='emp-carry';
+      var lbl=document.createElement('label');lbl.textContent='Reportat 2025:';
+      var cinp=document.createElement('input');cinp.type='number';cinp.className='carry-input';cinp.min=0;cinp.max=30;cinp.value=e.carry;
+      cinp.onclick=function(ev){ev.stopPropagation();};
+      cinp.oninput=function(){emps[idx].carry=Math.max(0,parseInt(this.value)||0);render();};
+      cr.appendChild(lbl);cr.appendChild(cinp);card.appendChild(cr);
+
+      var lc=left<0?'#A32D2D':ED[idx];
+      var st=document.createElement('div');st.className='emp-stats';
+      st.innerHTML='<div class="emp-stat">Total: <span>'+total+'</span></div>'
+        +'<div class="emp-stat">Utilizate: <span style="color:'+EC[idx]+'">'+used+'</span></div>'
+        +'<div class="emp-stat">Ramase: <span style="color:'+lc+'">'+left+'</span></div>';
+      card.appendChild(st);
+      c.appendChild(card);
+    })(i);
+  }
+  var leg=document.getElementById('leg-emps');leg.innerHTML='';
+  for(var j=0;j<3;j++){
+    var f=document.createElement('span');f.style.cssText='display:flex;align-items:center;gap:5px;';
+    f.innerHTML='<div class="leg-dot" style="background:'+EC[j]+'"></div><span style="font-size:12px;color:#666">'+emps[j].name+'</span>';
+    leg.appendChild(f);
+  }
+}
+
+function renderMonths(){
+  var c=document.getElementById('months-container');c.innerHTML='';
+  for(var mo=0;mo<12;mo++){
+    (function(m){
+      var card=document.createElement('div');card.className='mc';
+      var title=document.createElement('div');title.className='mn';title.textContent=MN[m]+' 2026';card.appendChild(title);
+      var grid=document.createElement('div');grid.className='cg';
+      for(var n=0;n<7;n++){var hd=document.createElement('div');hd.className='dh';hd.textContent=DN[n];grid.appendChild(hd);}
+      var fd=new Date(2026,m,1).getDay(),off=fd===0?6:fd-1;
+      for(var x=0;x<off;x++){var em=document.createElement('div');em.className='day empty';grid.appendChild(em);}
+      var dim=new Date(2026,m+1,0).getDate(),mhls=[];
+      for(var d=1;d<=dim;d++){
+        (function(day){
+          var key=dk(2026,m,day);
+          var cell=document.createElement('div');
+          var num=document.createElement('div');num.className='dn';num.textContent=day;cell.appendChild(num);
+          if(isHL(key)){
+            cell.className='day hl';cell.title=HL[key];mhls.push({d:day,n:HL[key]});
+          } else if(isWE(2026,m,day)){
+            cell.className='day we';
+          } else {
+            cell.className='day wd';
+            var dts=document.createElement('div');dts.className='dots';
+            for(var ei=0;ei<3;ei++){if(emps[ei].vac[key]){var dt=document.createElement('div');dt.className='dot';dt.style.background=EC[ei];dts.appendChild(dt);}}
+            cell.appendChild(dts);
+            if(emps[act].vac[key]){
+              var over=vcnt(act)>ANN[act]+emps[act].carry;
+              cell.style.background=over?'#FAECE7':EL[act];
+              cell.style.borderColor=over?'#F0997B':EC[act];
+              num.style.fontWeight='600';num.style.color=over?'#993C1D':ED[act];
+            }
+            cell.addEventListener('click',(function(k){return function(){toggle(k);};})(key));
+          }
+          grid.appendChild(cell);
+        })(d);
+      }
+      card.appendChild(grid);
+      if(mhls.length){var hl=document.createElement('div');hl.className='mhl';mhls.forEach(function(hh){var t=document.createElement('span');t.className='htag';t.textContent=hh.d+' - '+hh.n;hl.appendChild(t);});card.appendChild(hl);}
+      c.appendChild(card);
+    })(mo);
+  }
+}
+
+function renderOV(){
+  var ov2=0,ov3=0;
+  for(var m=0;m<12;m++){var dim=new Date(2026,m+1,0).getDate();for(var d=1;d<=dim;d++){var key=dk(2026,m,d);if(!isWD(2026,m,d))continue;var cnt=0;for(var i=0;i<3;i++){if(emps[i].vac[key])cnt++;}if(cnt===3)ov3++;else if(cnt===2)ov2++;}}
+  var sh='';
+  for(var i=0;i<3;i++) sh+='<div class="ost"><div class="osl">'+emps[i].name+'</div><div class="osv" style="color:'+EC[i]+'">'+vcnt(i)+' zile</div></div>';
+  sh+='<div class="ost"><div class="osl">Suprapuneri 2 ang.</div><div class="osv" style="color:#854F0B">'+ov2+'</div></div>';
+  sh+='<div class="ost"><div class="osl">Suprapuneri toti 3</div><div class="osv" style="color:#993C1D">'+ov3+'</div></div>';
+  document.getElementById('ov-summary').innerHTML=sh;
+
+  var ovleg=document.getElementById('ov-legend');ovleg.innerHTML='';
+  [{bg:'#FAEEDA',bd:'#FAC775',l:'Suprapunere 2 angajati'},{bg:'#FAECE7',bd:'#F0997B',l:'Suprapunere toti 3'}].forEach(function(x){var s=document.createElement('span');s.style.cssText='display:flex;align-items:center;gap:6px;font-size:12px;color:#666;';s.innerHTML='<div class="leg-dot" style="background:'+x.bg+';border:1px solid '+x.bd+'"></div>'+x.l;ovleg.appendChild(s);});
+  for(var ei=0;ei<3;ei++){var s=document.createElement('span');s.style.cssText='display:flex;align-items:center;gap:6px;font-size:12px;color:#666;';s.innerHTML='<div class="leg-dot" style="background:'+EC[ei]+'"></div>'+emps[ei].name;ovleg.appendChild(s);}
+
+  var tl=document.getElementById('timeline');tl.innerHTML='';
+  for(var mo=0;mo<12;mo++){
+    (function(m){
+      var dim=new Date(2026,m+1,0).getDate();
+      var div=document.createElement('div');div.className='tlm';
+      var mn=document.createElement('div');mn.className='tlmn';mn.textContent=MN[m];div.appendChild(mn);
+      var rs=document.createElement('div');rs.className='tlrs';
+      var ed=[[],[],[]],ovd=[],daysData=[];
+      for(var d=1;d<=dim;d++){var key=dk(2026,m,d);var we=isWE(2026,m,d),hl=isHL(key);var cnt=0;for(var i=0;i<3;i++){if(emps[i].vac[key])cnt++;}for(var i=0;i<3;i++)ed[i].push({we:we,hl:hl,vac:!!emps[i].vac[key],cnt:cnt});ovd.push({we:we,hl:hl,cnt:cnt});daysData.push({d:d,we:we,hl:hl});}
+      var numRow=document.createElement('div');numRow.className='tlr';
+      var numLbl=document.createElement('div');numLbl.className='tll';numLbl.style.color='#ccc';numLbl.textContent='';numRow.appendChild(numLbl);
+      var numDays=document.createElement('div');numDays.className='tld';
+      daysData.forEach(function(cd){var c=document.createElement('div');c.className='tlc-num'+(cd.we?' we-num':cd.hl?' hl-num':'');c.textContent=cd.d;numDays.appendChild(c);});
+      numRow.appendChild(numDays);rs.appendChild(numRow);
+      for(var ei=0;ei<3;ei++){
+        (function(idx){
+          var row=document.createElement('div');row.className='tlr';
+          var lbl=document.createElement('div');lbl.className='tll';lbl.textContent=emps[idx].name;lbl.style.color=EC[idx];row.appendChild(lbl);
+          var days=document.createElement('div');days.className='tld';
+          ed[idx].forEach(function(cd){var c=document.createElement('div');c.className='tlc';if(cd.we)c.style.background='transparent';else if(cd.hl)c.style.background='#FAECE7';else if(cd.vac)c.style.background=cd.cnt>=3?'#A32D2D':cd.cnt===2?'#BA7517':EC[idx];else c.style.background='#f0f0ee';days.appendChild(c);});
+          row.appendChild(days);rs.appendChild(row);
+        })(ei);
+      }
+      var or=document.createElement('div');or.className='tlr';
+      var ol=document.createElement('div');ol.className='tll';ol.textContent='Suprapuneri';ol.style.color='#bbb';or.appendChild(ol);
+      var od=document.createElement('div');od.className='tld';
+      ovd.forEach(function(cd){var c=document.createElement('div');c.className='tlc';if(cd.we)c.style.background='transparent';else if(cd.hl)c.style.background='#FAECE7';else if(cd.cnt===3)c.style.background='#D85A30';else if(cd.cnt===2)c.style.background='#EF9F27';else c.style.background='#f0f0ee';od.appendChild(c);});
+      or.appendChild(od);rs.appendChild(or);div.appendChild(rs);tl.appendChild(div);
+    })(mo);
+  }
+
+  var olEl=document.getElementById('overlap-list');olEl.innerHTML='';
+  var bm={};
+  for(var m=0;m<12;m++){var dim=new Date(2026,m+1,0).getDate();for(var d=1;d<=dim;d++){var key=dk(2026,m,d);if(!isWD(2026,m,d))continue;var who=[];for(var i=0;i<3;i++){if(emps[i].vac[key])who.push(i);}if(who.length>=2){if(!bm[m])bm[m]=[];bm[m].push({d:d,who:who});}}}
+  var ms=Object.keys(bm).map(Number);
+  if(!ms.length){olEl.innerHTML='<div class="noolap">Nu exista suprapuneri de concediu in echipa.</div>';}
+  else{ms.forEach(function(m){var sec=document.createElement('div');sec.style.marginBottom='1rem';var mn=document.createElement('div');mn.style.cssText='font-size:13px;font-weight:600;color:#666;margin-bottom:6px;';mn.textContent=MN[m];sec.appendChild(mn);var bg=document.createElement('div');bg.style.cssText='display:flex;flex-wrap:wrap;gap:4px;';bm[m].forEach(function(item){var b=document.createElement('span');b.className='ob '+(item.who.length===3?'ob3':'ob2');b.innerHTML='<strong>'+item.d+'</strong> '+item.who.map(function(i){return emps[i].name;}).join(' + ');bg.appendChild(b);});sec.appendChild(bg);olEl.appendChild(sec);});}
+}
+
+function render(){renderCards();renderMonths();}
+render();
+</script>
+</body>
+</html>
